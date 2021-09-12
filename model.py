@@ -1,5 +1,4 @@
 import re
-
 """
 数据模型
 """
@@ -8,7 +7,7 @@ import re
 class PatentTransfer:
     name = "专利权变更表"
 
-    def __init__(self, queue):
+    def __init__(self, queue, db):
         state = False
         state = bool(re.search(r"(\d\d-\d\d)", queue[0]))
         state = bool(re.search(r'ZL .*', queue[1]))
@@ -38,7 +37,7 @@ class PatentTransfer:
 class PatentOwnerChanges:
     name = '专利人姓名或地址变更表'
 
-    def __init__(self, queue):
+    def __init__(self, queue, db):
         state = False
         state = bool(re.search(r"(\d\d-\d\d)", queue[0]))
         state = bool(re.search(r'ZL .*', queue[1]))
@@ -67,7 +66,7 @@ class PatentOwnerChanges:
 class PatentInvalidation:
     name = '专利权全部无效表'
 
-    def __init__(self, queue):
+    def __init__(self, queue, db):
         state = False
         state = bool(re.search(r"(\d\d-\d\d)", queue[0]))
         state = bool(re.search(r'ZL .*', queue[1]))
@@ -87,10 +86,11 @@ class PatentInvalidation:
 class TerminationUnpaidAnnualFee:
     name = '未缴年费终止表'
 
-    def __init__(self, queue):
+    def __init__(self, queue, db):
         state = False
         state = bool(re.search(r"\d\d-\d\d", queue[0]))
-        if state and bool(re.search(r'ZL .*', queue[1])) and bool(re.search('ZL \w{12}\.\w', queue[1])):
+        if state and bool(re.search(r'ZL .*', queue[1])) and bool(
+                re.search('ZL \w{12}\.\w', queue[1])):
             data = queue[1].split(' ')
             self.Main_classification = (re.findall(r'\d\d-\d\d', queue[0]))[0]
             self.Patent_number = data[0] + ' ' + data[1]
@@ -99,7 +99,8 @@ class TerminationUnpaidAnnualFee:
             self.Authorization_announcement_date = (re.findall(
                 r'\d{4}\.\d{1,2}\.\d{1,2}', data[3]))[0]
 
-        elif state and bool(re.search(r'ZL .*', queue[1])) and not bool(re.search('ZL \w{12}\.\w', queue[1])):
+        elif state and bool(re.search(r'ZL .*', queue[1])) and not bool(
+                re.search('ZL \w{12}\.\w', queue[1])):
             data = queue[2].split(' ')
             self.Main_classification = (re.findall(r'\d\d-\d\d', queue[0]))[0]
             self.Patent_number = queue[1]
@@ -117,7 +118,7 @@ class TerminationUnpaidAnnualFee:
 class ExpiryOfThePatentRight:
     name = '专利有效期满注销表'
 
-    def __init__(self, queue):
+    def __init__(self, queue, db):
         state = False
         state = bool(re.search(r"\d\d-\d\d", queue[0]))
         state = bool(re.search(r'ZL .*', queue[1]))
@@ -139,7 +140,7 @@ class ExpiryOfThePatentRight:
 class PatentAbandonment:
     name = '专利放弃表'
 
-    def __init__(self, queue):
+    def __init__(self, queue, db):
         state = False
         state = bool(re.search(r"(\d\d-\d\d)", queue[0]))
         state = bool(re.search(r'ZL .*', queue[1]))
@@ -159,7 +160,7 @@ class PatentAbandonment:
 class BibliographiChanges:
     name = '著录事项变更表'
 
-    def __init__(self, queue):
+    def __init__(self, queue, db):
         state = False
         state = bool(re.search(r"(\d\d-\d\d)", queue[0]))
         if state:
@@ -178,7 +179,7 @@ class BibliographiChanges:
 class PatentPreservation:
     name = '专利保全表'
 
-    def __init__(self, queue):
+    def __init__(self, queue, db):
         state = False
         state = bool(re.search(r"(\d\d-\d\d)", queue[0]))
         state = bool(re.search(r'ZL .*', queue[1]))
@@ -198,7 +199,7 @@ class PatentPreservation:
 class PatentPreservationCancellation:
     name = '专利保全解除表'
 
-    def __init__(self, queue):
+    def __init__(self, queue, db):
         state = False
         state = bool(re.search(r"(\d\d-\d\d)", queue[0]))
         state = bool(re.search(r'ZL .*', queue[1]))
