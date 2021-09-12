@@ -1,0 +1,12 @@
+test.pdf
+WGSW2614.pdf
+WGSW2615.pdf
+WGSW2621.pdf
+WGSW2622.pdf
+WGSW2624.pdf
+*.xml
+*.pyc
+/.vscode
+/.idea
+*.ini
+.idea/GrepConsole.xml
