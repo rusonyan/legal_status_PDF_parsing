@@ -1,13 +1,27 @@
 import re
+
+import cpca
 """
 数据模型
 """
 
 
+def address(location):
+    results = cpca.transform([location], pos_sensitive=True).values[0]
+    state = True
+    for r in results:
+        if r == None:
+            state = False
+    if state and results[5] != -1:
+        return results
+    else:
+        return None
+
+
 class PatentTransfer:
     name = "专利权变更表"
 
-    def __init__(self, queue, db):
+    def __init__(self, queue):
         state = False
         state = bool(re.search(r"(\d\d-\d\d)", queue[0]))
         state = bool(re.search(r'ZL .*', queue[1]))
@@ -30,6 +44,9 @@ class PatentTransfer:
         else:
             print("错误！，创建专利转移对象失败")
 
+    def Insert(self, db):
+        pass
+
     def __str__(self):
         return self.Main_classification + "," + self.Patent_number + "," + self.Change_items + "," + self.Right_holder_before_change + "," + self.Right_holder_after_change + "," + self.Registration_effective_date + "," + self.Right_holder_before_address + "," + self.Right_holder_after_address
 
@@ -37,7 +54,7 @@ class PatentTransfer:
 class PatentOwnerChanges:
     name = '专利人姓名或地址变更表'
 
-    def __init__(self, queue, db):
+    def __init__(self, queue):
         state = False
         state = bool(re.search(r"(\d\d-\d\d)", queue[0]))
         state = bool(re.search(r'ZL .*', queue[1]))
@@ -59,6 +76,20 @@ class PatentOwnerChanges:
         else:
             print("错误！，创建专利更名对象失败")
 
+    def Insert(self, db):
+        db.cursor.execute(
+            'INSERT INTO [dbo].[CP] VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+            self.Main_classification, self.Patent_number,
+            self.Right_holder_before_change, self.Right_holder_after_change,
+            self.Right_holder_before_address, self.Right_holder_after_address,
+            db.publishTime, db.filename)
+        db.cursor.execute(
+            'INSERT INTO [dbo].[StateChange]([code],[after_change],[announcement_date],[patent_num],[change_id]) VALUES (?,?,?,?,?)',
+            'IW01', '专利权的全部无效', self.Invalidation_decision_date,
+            self.Patent_number,
+            db.back()[0])
+        return self
+
     def __str__(self):
         return self.Main_classification + "," + self.Patent_number + "," + self.Change_items + "," + self.Right_holder_before_change + "," + self.Right_holder_after_change + "," + self.Right_holder_before_address + "," + self.Right_holder_after_address
 
@@ -66,7 +97,7 @@ class PatentOwnerChanges:
 class PatentInvalidation:
     name = '专利权全部无效表'
 
-    def __init__(self, queue, db):
+    def __init__(self, queue):
         state = False
         state = bool(re.search(r"(\d\d-\d\d)", queue[0]))
         state = bool(re.search(r'ZL .*', queue[1]))
@@ -79,6 +110,18 @@ class PatentInvalidation:
         else:
             print("错误！创建专利权全部无效对象失败")
 
+    def Insert(self, db):
+        db.cursor.execute('INSERT INTO [dbo].[IW] VALUES (?,?,?,?,?)',
+                          self.Main_classification, self.Patent_number,
+                          self.Invalidation_decision_number,
+                          self.Invalidation_decision_date, db.filename)
+        db.cursor.execute(
+            'INSERT INTO [dbo].[StateChange]([code],[after_change],[announcement_date],[patent_num],[change_id]) VALUES (?,?,?,?,?)',
+            'IW01', '专利权的全部无效', self.Invalidation_decision_date,
+            self.Patent_number,
+            db.back()[0])
+        return self
+
     def __str__(self):
         return self.Main_classification + "," + self.Patent_number + "," + self.Authorization_announcement_date + "," + self.Invalidation_decision_number + "," + self.Invalidation_decision_date
 
@@ -86,7 +129,7 @@ class PatentInvalidation:
 class TerminationUnpaidAnnualFee:
     name = '未缴年费终止表'
 
-    def __init__(self, queue, db):
+    def __init__(self, queue):
         state = False
         state = bool(re.search(r"\d\d-\d\d", queue[0]))
         if state and bool(re.search(r'ZL .*', queue[1])) and bool(
@@ -111,6 +154,16 @@ class TerminationUnpaidAnnualFee:
         else:
             print("错误！创建未缴年费终止对象失败")
 
+    def Insert(self, db):
+        db.cursor.execute('INSERT INTO [dbo].[CF] VALUES (?,?,?,?,?)',
+                          self.Main_classification, self.Patent_number,
+                          self.Application_date, db.publishTime, db.filename)
+        db.cursor.execute(
+            'INSERT INTO [dbo].[StateChange]([code],[after_change],[announcement_date],[patent_num],[change_id]) VALUES (?,?,?,?,?)',
+            'CF01', '未缴年费专利权终止', db.publishTime, self.Patent_number,
+            db.back()[0])
+        return self
+
     def __str__(self):
         return self.Main_classification + "," + self.Patent_number + "," + self.Application_date + "," + self.Authorization_announcement_date
 
@@ -118,7 +171,7 @@ class TerminationUnpaidAnnualFee:
 class ExpiryOfThePatentRight:
     name = '专利有效期满注销表'
 
-    def __init__(self, queue, db):
+    def __init__(self, queue):
         state = False
         state = bool(re.search(r"\d\d-\d\d", queue[0]))
         state = bool(re.search(r'ZL .*', queue[1]))
@@ -133,6 +186,17 @@ class ExpiryOfThePatentRight:
         else:
             print("错误！创建专利有效期满对象失败")
 
+    def Insert(self, db):
+        db.cursor.execute('INSERT INTO [dbo].[CX] VALUES (?,?,?,?,?)',
+                          self.Main_classification, self.Patent_number,
+                          db.publishTime, self.Authorization_announcement_date,
+                          db.filename)
+        db.cursor.execute(
+            'INSERT INTO [dbo].[StateChange]([code],[after_change],[announcement_date],[patent_num],[change_id]) VALUES (?,?,?,?,?)',
+            'CX01', '专利有效期满', db.publishTime, self.Patent_number,
+            db.back()[0])
+        return self
+
     def __str__(self):
         return self.Main_classification + "," + self.Patent_number + "," + self.Application_date + "," + self.Authorization_announcement_date
 
@@ -140,7 +204,7 @@ class ExpiryOfThePatentRight:
 class PatentAbandonment:
     name = '专利放弃表'
 
-    def __init__(self, queue, db):
+    def __init__(self, queue):
         state = False
         state = bool(re.search(r"(\d\d-\d\d)", queue[0]))
         state = bool(re.search(r'ZL .*', queue[1]))
@@ -150,8 +214,19 @@ class PatentAbandonment:
             self.Authorization_announcement_date = queue[2]
             self.Invalidation_decision_number = queue[3]
             self.Invalidation_decision_date = queue[4]
+
         else:
             print("错误！创建专利放弃对象失败")
+
+    def Insert(self, db):
+        db.cursor.execute('INSERT INTO [dbo].[AV] VALUES (?,?,?,?)',
+                          self.Main_classification, self.Patent_number,
+                          self.Invalidation_decision_date, db.filename)
+        db.cursor.execute(
+            'INSERT INTO [dbo].[StateChange]([code],[after_change],[announcement_date],[patent_num],[change_id]) VALUES (?,?,?,?,?)',
+            'AV01', '专利权主动放弃', db.publishTime, self.Patent_number,
+            db.back()[0])
+        return self
 
     def __str__(self):
         return self.Main_classification + "," + self.Patent_number + "," + self.Authorization_announcement_date + "," + self.Invalidation_decision_number + "," + self.Invalidation_decision_date
@@ -160,7 +235,7 @@ class PatentAbandonment:
 class BibliographiChanges:
     name = '著录事项变更表'
 
-    def __init__(self, queue, db):
+    def __init__(self, queue):
         state = False
         state = bool(re.search(r"(\d\d-\d\d)", queue[0]))
         if state:
@@ -179,7 +254,7 @@ class BibliographiChanges:
 class PatentPreservation:
     name = '专利保全表'
 
-    def __init__(self, queue, db):
+    def __init__(self, queue):
         state = False
         state = bool(re.search(r"(\d\d-\d\d)", queue[0]))
         state = bool(re.search(r'ZL .*', queue[1]))
@@ -192,6 +267,17 @@ class PatentPreservation:
         else:
             print("错误！创建专利保全对象失败")
 
+    def Insert(self, db):
+        db.cursor.execute('INSERT INTO [dbo].[PP] VALUES (?,?,?,?)',
+                          self.Main_classification, self.Patent_number,
+                          self.Invalidation_decision_date, db.filename)
+        db.cursor.execute(
+            'INSERT INTO [dbo].[StateChange]([code],[after_change],[announcement_date],[patent_num],[change_id]) VALUES (?,?,?,?,?)',
+            'PP01', '专利权的保全', self.Invalidation_decision_date,
+            self.Patent_number,
+            db.back()[0])
+        return self
+
     def __str__(self):
         return self.Main_classification + "," + self.Patent_number + "," + self.Authorization_announcement_date + "," + self.Invalidation_decision_number + "," + self.Invalidation_decision_date
 
@@ -199,7 +285,7 @@ class PatentPreservation:
 class PatentPreservationCancellation:
     name = '专利保全解除表'
 
-    def __init__(self, queue, db):
+    def __init__(self, queue):
         state = False
         state = bool(re.search(r"(\d\d-\d\d)", queue[0]))
         state = bool(re.search(r'ZL .*', queue[1]))
@@ -211,6 +297,18 @@ class PatentPreservationCancellation:
             self.Invalidation_decision_date = queue[4]
         else:
             print("错误！创建专利保全解除对象失败")
+
+    def Insert(self, db):
+        db.cursor.execute('INSERT INTO [dbo].[PD] VALUES (?,?,?,?)',
+                          self.Main_classification, self.Patent_number,
+                          self.Invalidation_decision_date, db.filename)
+        db.cursor.execute(
+            'INSERT INTO [dbo].[StateChange]([code],[after_change],[announcement_date],[patent_num],[change_id]) VALUES (?,?,?,?,?)',
+            'PD01', '专利权的保全的解除', self.Invalidation_decision_date,
+            self.Patent_number,
+            db.back()[0])
+
+        return self
 
     def __str__(self):
         return self.Main_classification + "," + self.Patent_number + "," + self.Authorization_announcement_date + "," + self.Invalidation_decision_number + "," + self.Invalidation_decision_date
