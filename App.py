@@ -1,10 +1,10 @@
 import os
 import pprint
 import shutil
-from sql import DB
-
+from DB import DB
+import pyodbc
 import pdfplumber
-
+from datetime import datetime
 from differentiation_model import DifferentiationModel
 from table_spilt import TableSpilt
 
@@ -15,45 +15,48 @@ class App:
     """
     def __init__(self, filename):
         self.filename = filename
+        (path, self.file) = os.path.split(filename)
         self.handle()
-        self.db = DB()
 
     def handle(self):
-        state = None
-        this_table = []
         lines = []
-
         file_path = self.filename
+
         with pdfplumber.open(self.filename) as pdf:
             for x in pdf.lines:
                 if x['linewidth'] > 1.4:
                     lines.append(x)
 
-            bk_path = TableSpilt(lines, pdf).get_this_name() + '事务公告备份'
+            day = TableSpilt(lines, pdf).get_this_name()
+            publishTime = time.strftime("%Y-%m-%d",
+                                        time.strptime(day, u"%Y年%m月%d日"))
+            bk_path = day + '事务公告备份'
             end = os.path.join(os.path.expanduser("~"),
                                'Desktop') + '\\' + bk_path
             if not os.path.exists(end):
                 os.mkdir(end)
 
-            i = 0
-            a = set()
-            # for x in pdf.chars:
-            #     if x['text']=='主':
-            #         # pprint.pprint(x)
-            #         a.add(x['fontname'])
-            #         i=i+1
-            # print(i)
-            # pprint.pprint(a)
-            # b=TableSpilt(lines, pdf).return_serialized_data()
+            db = DB(self.file, publishTime)
+            try:
+                for t in TableSpilt(lines, pdf).return_serialized_data():
+                    DifferentiationModel().differentiation(t, bk_path, db)
+            except pyodbc.DatabaseError as err:
+                print(err)
+                db.cn.rollback()
+                print('写库失败！ 已回滚操作!')
+            else:
+                db.cn.commit()
+            finally:
+                db.cursor.execute('INSERT INTO [dbo].[DBlog] VALUES (?,?,?)',
+                                  datetime.now(), db.publishTime, db.filename)
+                db.cn.autocommit = True
 
-            for t in TableSpilt(lines, pdf).return_serialized_data():
-                DifferentiationModel().differentiation(t, bk_path, self.db)
+            self.end(end)
 
-            shutil.copyfile(file_path,
-                            end + '//' + os.path.split(file_path)[1])
-            shutil.copy(os.getcwd() + '//' + '使用前必读.md', end)
-
-            self.db.Insert()
+    def end(self, end):
+        shutil.copyfile(self.filename,
+                        end + '//' + os.path.split(self.filename)[1])
+        shutil.copy(os.getcwd() + '//' + '使用前必读.md', end)
 
 
 #conding=utf8
