@@ -1,21 +1,8 @@
 import re
 
-import cpca
 """
 数据模型
 """
-
-
-def address(location):
-    results = cpca.transform([location], pos_sensitive=True).values[0]
-    state = True
-    for r in results:
-        if r == None:
-            state = False
-    if state and results[5] != -1:
-        return results
-    else:
-        return None
 
 
 class PatentInvalidation:
@@ -79,9 +66,9 @@ class TerminationUnpaidAnnualFee:
             print("错误！创建未缴年费终止对象失败")
 
     def Insert(self, db):
-        db.cursor.execute('INSERT INTO [dbo].[CF] VALUES (?,?,?,?,?)',
+        db.cursor.execute('INSERT INTO [dbo].[CF] VALUES (?,?,?,?)',
                           self.Main_classification, self.Patent_number,
-                          self.Application_date, db.publishTime, db.filename)
+                          db.publishTime, db.filename)
         db.cursor.execute(
             'INSERT INTO [dbo].[StateChange]([code],[after_change],[announcement_date],[patent_num],[change_id]) VALUES (?,?,?,?,?)',
             'CF01', '未缴年费专利权终止', db.publishTime, self.Patent_number,
@@ -173,5 +160,3 @@ class BibliographiChanges:
 
     def __str__(self):
         return self.Main_classification + "," + self.Patent_number + "," + self.Authorization_announcement_date + "," + self.Invalidation_decision_number + "," + self.Invalidation_decision_date
-
-

@@ -1,5 +1,23 @@
 import re
 
+import cpca
+
+
+def spilt_address(location):
+    results = cpca.transform([location], pos_sensitive=True).values[0]
+    state = True
+    for r in results:
+        if r == None:
+            state = False
+    if state and results[5] != -1:
+        return results
+    else:
+        return []
+
+
+def filter(str):
+    return bool(bool(re.search(r'.*主分类号.*', str)) and bool(re.search(r'.*专利号.*', str)))
+
 
 class PatentTransfer:
     name = "专利权变更表"
@@ -17,18 +35,45 @@ class PatentTransfer:
             self.Right_holder_after_change = queue[4]
             self.Registration_effective_date = queue[5][0:-2]
             self.Right_holder_before_address = queue[6]
-            self.Right_holder_after_address = queue[7]
-            if len(queue) > 8 and queue[8] != '主分类号' and queue[8] != '专利号':
+            self.Right_holder_after_address = queue[7].strip('专利权人').strip('共同专利权人')
+            if len(queue) > 8 and filter(queue[8]):
                 self.Right_holder_before_change = self.Right_holder_before_change + ";" + queue[
                     8]
-                if len(queue) > 9 and queue[9] != '主分类号' and queue[9] != '专利号':
+                if len(queue) > 9 and filter(queue[9]):
                     self.Right_holder_after_change = self.Right_holder_after_change + ";" + queue[
                         9]
         else:
             print("错误！，创建专利转移对象失败")
 
     def Insert(self, db):
-        pass
+        address = spilt_address(self.Right_holder_after_address)
+        if len(address) == 8:
+            db.cursor.execute(
+                'INSERT INTO [dbo].[TR] VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+                self.Main_classification, self.Patent_number,
+                self.Right_holder_before_change,
+                self.Right_holder_after_change,
+                self.Right_holder_before_address,
+                self.Right_holder_after_address, self.Registration_effective_date,
+                db.filename, address[0], address[1],
+                address[2], address[3], )
+        else:
+            db.cursor.execute(
+                'INSERT INTO [dbo].[TR] VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+                self.Main_classification, self.Patent_number,
+                self.Right_holder_before_change,
+                self.Right_holder_after_change,
+                self.Right_holder_before_address,
+                self.Right_holder_after_address, self.Registration_effective_date, db.filename, 'null', 'null', 'null',
+                'null')
+        db.cursor.execute(
+            'INSERT INTO [dbo].[StateChange]([code],[before_change],[after_change],[announcement_date],[patent_num],[change_id]) VALUES (?,?,?,?,?,?)',
+            'TR01', self.Right_holder_before_change + '\n' +
+                    self.Right_holder_before_address, self.Right_holder_after_change +
+                    '\n' + self.Right_holder_after_address,
+            self.Registration_effective_date, self.Patent_number,
+            db.back()[0])
+        return self
 
     def __str__(self):
         return self.Main_classification + "," + self.Patent_number + "," + self.Change_items + "," + self.Right_holder_before_change + "," + self.Right_holder_after_change + "," + self.Registration_effective_date + "," + self.Right_holder_before_address + "," + self.Right_holder_after_address
@@ -49,26 +94,41 @@ class PatentOwnerChanges:
             self.Right_holder_before_change = queue[3]
             self.Right_holder_after_change = queue[4][0:-2]
             self.Right_holder_before_address = queue[5]
-            self.Right_holder_after_address = queue[6]
-            if len(queue) > 7 and queue[7] != '主分类号' and queue[7] != '专利号':
+            self.Right_holder_after_address = queue[6].strip('专利权人').strip('共同专利权人')
+            if len(queue) > 7 and filter(queue[7]):
                 self.Right_holder_before_change = self.Right_holder_before_change + ";" + queue[
                     7]
-                if len(queue) > 8 and queue[8] != '主分类号' and queue[8] != '专利号':
+                if len(queue) > 8 and filter(queue[8]):
                     self.Right_holder_after_change = self.Right_holder_after_change + ";" + queue[
                         8]
         else:
             print("错误！，创建专利更名对象失败")
 
     def Insert(self, db):
+        address = spilt_address(self.Right_holder_after_address)
+        if len(address) == 8:
+            db.cursor.execute(
+                'INSERT INTO [dbo].[CP] VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+                self.Main_classification, self.Patent_number,
+                self.Right_holder_before_change,
+                self.Right_holder_after_change,
+                self.Right_holder_before_address,
+                self.Right_holder_after_address, db.publishTime, db.filename, address[0], address[1],
+                address[2], address[3], )
+        else:
+            db.cursor.execute(
+                'INSERT INTO [dbo].[CP] VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+                self.Main_classification, self.Patent_number,
+                self.Right_holder_before_change,
+                self.Right_holder_after_change,
+                self.Right_holder_before_address,
+                self.Right_holder_after_address, db.publishTime, db.filename, 'null', 'null', 'null',
+                'null')
         db.cursor.execute(
-            'INSERT INTO [dbo].[CP] VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
-            self.Main_classification, self.Patent_number,
-            self.Right_holder_before_change, self.Right_holder_after_change,
-            self.Right_holder_before_address, self.Right_holder_after_address,
-            db.publishTime, db.filename)
-        db.cursor.execute(
-            'INSERT INTO [dbo].[StateChange]([code],[after_change],[announcement_date],[patent_num],[change_id]) VALUES (?,?,?,?,?)',
-            'IW01', '专利权的全部无效', self.Invalidation_decision_date,
+            'INSERT INTO [dbo].[StateChange]([code],[before_change],[after_change],[announcement_date],[patent_num],[change_id]) VALUES (?,?,?,?,?,?)',
+            'CP01', self.Right_holder_before_change + '\n' +
+                    self.Right_holder_before_address, self.Right_holder_after_change +
+                    '\n' + self.Right_holder_after_address, db.publishTime,
             self.Patent_number,
             db.back()[0])
         return self

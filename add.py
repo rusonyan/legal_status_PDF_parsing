@@ -1,8 +1,6 @@
-import time
-
 import cpca
-import re
-from dateutil.parser import parse
+
+
 #
 # a='2010年5月26日'
 # array =
@@ -10,21 +8,33 @@ from dateutil.parser import parse
 # publishTime = time.strftime("%Y-%m-%d", time.strptime(a, u"%Y年%m月%d日"))
 # print (publishTime)
 
+# truncate table AV
+# truncate table CF
+# truncate table CX
+# truncate table CP
+# truncate table DBlog
+# truncate table IW
+# truncate table PD
+# truncate table PP
+# truncate table StateChange
+# truncate table TR
+def address(location):
+    df = cpca.transform([location], pos_sensitive=True)
+    results = df.values[0]
+    state = True
+    for r in results:
+        if r == None:
+            state = False
+    if state and results[5] != -1:
+        print(1)
+        for x in results:
+            print(x)
+    else:
+        print(2)
+        for x in results:
+            print(x)
 
-# def address(location):
-#     df = cpca.transform([location], pos_sensitive=True)
-#     print(df)
-#     results = df.values[0]
-#     state = True
-#     for r in results:
-#         if r == None:
-#             state = False
-#     if state and results[5] != -1:
-#         return results
-#     else:
-#         return None
-#
-#
-# location_str = "201201 上海市浦东新区金桥华东路5001号金桥出口加工区（南区）龙沪路143号"
-#
-# address(location_str)
+
+location_str = "102100 北京市延庆县延庆镇莲花池村南"
+
+address(location_str)

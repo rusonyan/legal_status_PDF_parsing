@@ -1,11 +1,10 @@
-import re
 import pyodbc
 
 
 class DB:
     def __init__(self, filename,publishTime):
         self.cn = pyodbc.connect(
-            'DRIVER={ODBC Driver 17 for SQL Server};SERVER=localhost;DATABASE=Patentlog;UID=ruson;PWD=yanruisong'
+            'DRIVER={ODBC Driver 17 for SQL Server};SERVER=localhost;DATABASE=Log;UID=ruson;PWD=yanruisong'
         )
         self.cursor = self.cn.cursor()
         self.filename = filename

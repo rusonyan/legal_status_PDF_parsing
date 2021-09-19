@@ -1,8 +1,8 @@
 import CsvWrite
 from StringMiddleware import StringMiddleware
-from model.Invalid import PatentAbandonment, PatentInvalidation, TerminationUnpaidAnnualFee, ExpiryOfThePatentRight, BibliographiChanges
-from model.owner import PatentTransfer, PatentOwnerChanges
 from model.BaoQuan import PatentPreservation, PatentPreservationCancellation
+from model.Invalid import PatentAbandonment, PatentInvalidation, TerminationUnpaidAnnualFee, ExpiryOfThePatentRight
+from model.owner import PatentTransfer, PatentOwnerChanges
 
 """
 表处理
@@ -35,13 +35,13 @@ class PatentInvalidationIntermediary:
         CsvWrite.write(rows, bk_path)
 
 
-class BibliographiChangesIntermediary:
-    def __init__(self, text_block, bk_path, db):
-        rows = []
-        b = StringMiddleware(text_block).branch()
-        for single_ling in StringMiddleware(text_block).branch():
-            rows.append(BibliographiChanges(single_ling).Insert(db))
-        CsvWrite.write(rows, bk_path)
+# class BibliographiChangesIntermediary:
+#     def __init__(self, text_block, bk_path, db):
+#         rows = []
+#         b = StringMiddleware(text_block).branch()
+#         for single_ling in StringMiddleware(text_block).branch():
+#             rows.append(BibliographiChanges(single_ling).Insert(db))
+#         CsvWrite.write(rows, bk_path)
 
 
 class PatentOwnerChangesIntermediary:

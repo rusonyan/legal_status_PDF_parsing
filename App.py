@@ -1,10 +1,9 @@
-import os
-import pprint
-import shutil
-from DB import DB
-import pyodbc
-import pdfplumber
 from datetime import datetime
+
+import pdfplumber
+import pyodbc
+
+from DB import DB
 from differentiation_model import DifferentiationModel
 from table_spilt import TableSpilt
 
@@ -13,6 +12,7 @@ class App:
     """
     测试类
     """
+
     def __init__(self, filename):
         self.filename = filename
         (path, self.file) = os.path.split(filename)
@@ -60,12 +60,9 @@ class App:
 
 
 #conding=utf8
-import json
 import os
-import sys
 import shutil
 import time
-import zipfile
 
 
 # 判断是不是pdf
@@ -97,5 +94,5 @@ def main(path):
             App(f)
 
 
-a = App('WGSW2621.pdf')
-#main(r'C:\Users\ruson\Desktop\事务数据\2010')
+# a = App('WGSW2644.pdf')
+main(r'C:\Users\ruson\Desktop\事务数据\2010')
