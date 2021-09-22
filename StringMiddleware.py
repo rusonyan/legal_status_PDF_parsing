@@ -24,7 +24,7 @@ class StringMiddleware:
                 string.append(string_queue + queue[x]['text'])
                 break
             if (queue[x + 1]['x0'] - queue[x]['x0']) > 17 or (
-                    queue[x + 1]['x0'] <= 43
+                    queue[x + 1]['x0'] <= 44
                     and queue[x + 1]['x0'] != queue[x]['x0']):
                 string_queue = string_queue + queue[x]['text']
                 string.append(string_queue)
@@ -54,7 +54,7 @@ class StringMiddleware:
                 string.append(string_queue + queue[x]['text'])
                 break
             if (queue[x + 1]['x0'] - queue[x]['x0']) > 17 or (
-                    (queue[x + 1]['x0'] <= 43 or 280 <= queue[x + 1]['x0'] <= 307)
+                    (queue[x + 1]['x0'] <= 44 or 280 <= queue[x + 1]['x0'] <= 307)
                     and queue[x + 1]['x0'] != queue[x]['x0']):
                 string_queue = string_queue + queue[x]['text']
                 string.append(string_queue)

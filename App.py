@@ -1,8 +1,9 @@
+import sys
 from datetime import datetime
 
 import pdfplumber
-import pyodbc
 
+import toast
 from DB import DB
 from differentiation_model import DifferentiationModel
 from table_spilt import TableSpilt
@@ -40,10 +41,11 @@ class App:
             try:
                 for t in TableSpilt(lines, pdf).return_serialized_data():
                     DifferentiationModel().differentiation(t, bk_path, db)
-            except pyodbc.DatabaseError as err:
+            except Exception as err:
                 print(err)
                 db.cn.rollback()
                 print('写库失败！ 已回滚操作!')
+                sys.exit()
             else:
                 db.cn.commit()
             finally:
@@ -94,5 +96,7 @@ def main(path):
             App(f)
 
 
-# a = App('WGSW2644.pdf')
-main(r'C:\Users\ruson\Desktop\事务数据\2010')
+# App('WGSW3152.pdf')
+main(r'C:\Users\ruson\Desktop\事务数据\2017')
+# main(r'C:\Users\ruson\Desktop\事务数据\2022')
+toast.send("XML解析器", '处理完成！')

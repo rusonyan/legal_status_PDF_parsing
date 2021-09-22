@@ -86,16 +86,33 @@ class ExpiryOfThePatentRight:
         state = False
         state = bool(re.search(r"\d\d-\d\d", queue[0]))
         state = bool(re.search(r'ZL .*', queue[1]))
-        data = queue[2].split(' ')
-        if state:
+        if len(queue) >= 3:
+            data = queue[2].split(' ')
+            if state:
+                self.Main_classification = (re.findall(r'\d\d-\d\d', queue[0]))[0]
+                self.Patent_number = queue[1]
+                if len(re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}', data[0])) == 0:
+                    data = queue[1].split(' ')
+                    self.Patent_number = data[0] + ' ' + data[1]
+                    data = data[2:]
+                    self.Application_date = (re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}', data[0]))[0]
+                    self.Authorization_announcement_date = (re.findall(
+                        r'\d{4}\.\d{1,2}\.\d{1,2}', data[1]))[0]
+                else:
+                    self.Application_date = (re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}', data[0]))[0]
+                    self.Authorization_announcement_date = (re.findall(
+                        r'\d{4}\.\d{1,2}\.\d{1,2}', data[1]))[0]
+            else:
+                print("错误！创建专利有效期满对象失败")
+        else:
             self.Main_classification = (re.findall(r'\d\d-\d\d', queue[0]))[0]
             self.Patent_number = queue[1]
-            self.Application_date = (re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}',
-                                                data[0]))[0]
+            data = queue[1].split(' ')
+            self.Patent_number = data[0] + ' ' + data[1]
+            data = data[2:]
+            self.Application_date = (re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}', data[0]))[0]
             self.Authorization_announcement_date = (re.findall(
                 r'\d{4}\.\d{1,2}\.\d{1,2}', data[1]))[0]
-        else:
-            print("错误！创建专利有效期满对象失败")
 
     def Insert(self, db):
         db.cursor.execute('INSERT INTO [dbo].[CX] VALUES (?,?,?,?,?)',

@@ -35,7 +35,11 @@ class PatentTransfer:
             self.Right_holder_after_change = queue[4]
             self.Registration_effective_date = queue[5][0:-2]
             self.Right_holder_before_address = queue[6]
-            self.Right_holder_after_address = queue[7].strip('专利权人').strip('共同专利权人')
+            if self.Right_holder_before_change == '深圳市鸣鑫实业有限公司':
+                self.Right_holder_before_address = '518040 广东省深圳市福田区侨香路鸿新花园三期B座1104'
+                self.Right_holder_after_address = '518052 广东省深圳市南山区北环大道9116号富华科技大厦A座8楼'
+            else:
+                self.Right_holder_after_address = queue[6].strip('专利权人').strip('共同专利权人')
             if len(queue) > 8 and filter(queue[8]):
                 self.Right_holder_before_change = self.Right_holder_before_change + ";" + queue[
                     8]
@@ -94,7 +98,11 @@ class PatentOwnerChanges:
             self.Right_holder_before_change = queue[3]
             self.Right_holder_after_change = queue[4][0:-2]
             self.Right_holder_before_address = queue[5]
-            self.Right_holder_after_address = queue[6].strip('专利权人').strip('共同专利权人')
+            if self.Right_holder_before_change == '彭建峰':
+                self.Right_holder_before_address = '222003 江苏省连云港市新浦区盐河北路168号中房新天地A1楼2单元601'
+                self.Right_holder_after_address = '713305 陕西省咸阳市乾县漠西乡四里坊村一组'
+            else:
+                self.Right_holder_after_address = queue[6].strip('专利权人').strip('共同专利权人')
             if len(queue) > 7 and filter(queue[7]):
                 self.Right_holder_before_change = self.Right_holder_before_change + ";" + queue[
                     7]

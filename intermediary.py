@@ -55,6 +55,8 @@ class PatentOwnerChangesIntermediary:
 class PatentPreservationIntermediary:
     def __init__(self, text_block, bk_path, db):
         rows = []
+        b = StringMiddleware(text_block).branch()
+
         for single_ling in StringMiddleware(text_block).branch():
             rows.append(PatentPreservation(single_ling).Insert(db))
         CsvWrite.write(rows, bk_path)

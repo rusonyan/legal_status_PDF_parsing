@@ -1,5 +1,9 @@
 import cpca
 
+from win10toast import ToastNotifier
+
+toaster = ToastNotifier()
+
 
 #
 # a='2010年5月26日'
@@ -38,3 +42,8 @@ def address(location):
 location_str = "102100 北京市延庆县延庆镇莲花池村南"
 
 address(location_str)
+
+toaster.show_toast('XML法律状态解析器',
+                   "已自动更新！",
+                   icon_path=None,
+                   duration=10, )

@@ -1,9 +1,9 @@
-import os
 import re
 
 from intermediary import PatentRightChangeIntermediary, PatentInvalidationIntermediary, PatentAbandonmentIntermediary, \
     PatentOwnerChangesIntermediary, PatentPreservationIntermediary, PatentPreservationCancellationIntermediary, \
     TerminationUnpaidAnnualFeeIntermediary, ExpiryOfThePatentRightIntermediary
+
 """
 表识别分类
 """
@@ -89,5 +89,4 @@ class DifferentiationModel:
             print("无需关注的警告：" + title + " 表暂无须解析！")
         else:
             print("致命错误,未曾定义的表头，已自动终止程序！ 新表头为：" + title)
-            os.system("pause")
-        print("\n----------------------------------------------------")
+        print("----------------------------------------------------")
