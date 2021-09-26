@@ -28,6 +28,10 @@ class App:
                 if x['linewidth'] > 1.4:
                     lines.append(x)
 
+            # for x in pdf.chars:
+            #     if x['text']=='·':
+            #         pprint.pprint((x))
+
             day = TableSpilt(lines, pdf).get_this_name()
             publishTime = time.strftime("%Y-%m-%d",
                                         time.strptime(day, u"%Y年%m月%d日"))
@@ -41,7 +45,7 @@ class App:
             try:
                 for t in TableSpilt(lines, pdf).return_serialized_data():
                     DifferentiationModel().differentiation(t, bk_path, db)
-            except Exception as err:
+            except IOError as err:
                 print(err)
                 db.cn.rollback()
                 print('写库失败！ 已回滚操作!')
@@ -96,7 +100,7 @@ def main(path):
             App(f)
 
 
-# App('WGSW3152.pdf')
-main(r'C:\Users\ruson\Desktop\事务数据\2017')
-# main(r'C:\Users\ruson\Desktop\事务数据\2022')
+# App('WGSW364802.pdf')
+# main(r'C:\Users\ruson\Desktop\事务数据\2019')
+main(r'C:\Users\ruson\Desktop\事务数据\2023')
 toast.send("XML解析器", '处理完成！')

@@ -43,25 +43,24 @@ class TerminationUnpaidAnnualFee:
     def __init__(self, queue):
         state = False
         state = bool(re.search(r"\d\d-\d\d", queue[0]))
-        if state and bool(re.search(r'ZL .*', queue[1])) and bool(
-                re.search('ZL \w{12}\.\w', queue[1])):
-            data = queue[1].split(' ')
-            self.Main_classification = (re.findall(r'\d\d-\d\d', queue[0]))[0]
-            self.Patent_number = data[0] + ' ' + data[1]
-            self.Application_date = (re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}',
-                                                data[2]))[0]
-            self.Authorization_announcement_date = (re.findall(
-                r'\d{4}\.\d{1,2}\.\d{1,2}', data[3]))[0]
+        # if state and bool(re.search(r'ZL .*', queue[1])) and bool(
+        #         re.search('ZL \w{12}\.\w', queue[1])):
+        #     data = queue[1].split(' ')
+        #     self.Main_classification = (re.findall(r'\d\d-\d\d', queue[0]))[0]
+        #     self.Patent_number = data[0] + ' ' + data[1]
+        #     self.Application_date = (re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}',
+        #                                         data[2]))[0]
+        #     self.Authorization_announcement_date = (re.findall(
+        #         r'\d{4}\.\d{1,2}\.\d{1,2}', data[3]))[0]
 
-        elif state and bool(re.search(r'ZL .*', queue[1])) and not bool(
-                re.search('ZL \w{12}\.\w', queue[1])):
-            data = queue[2].split(' ')
+        if state:
+            # data = queue[2].split(' ')
             self.Main_classification = (re.findall(r'\d\d-\d\d', queue[0]))[0]
             self.Patent_number = queue[1]
             self.Application_date = (re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}',
-                                                data[0]))[0]
+                                                queue[2]))[0]
             self.Authorization_announcement_date = (re.findall(
-                r'\d{4}\.\d{1,2}\.\d{1,2}', data[1]))[0]
+                r'\d{4}\.\d{1,2}\.\d{1,2}', queue[3]))[0]
         else:
             print("错误！创建未缴年费终止对象失败")
 
@@ -99,9 +98,9 @@ class ExpiryOfThePatentRight:
                     self.Authorization_announcement_date = (re.findall(
                         r'\d{4}\.\d{1,2}\.\d{1,2}', data[1]))[0]
                 else:
-                    self.Application_date = (re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}', data[0]))[0]
+                    self.Application_date = (re.findall(r'\d{4}\.\d{1,2}\.\d{1,2}', queue[2]))[0]
                     self.Authorization_announcement_date = (re.findall(
-                        r'\d{4}\.\d{1,2}\.\d{1,2}', data[1]))[0]
+                        r'\d{4}\.\d{1,2}\.\d{1,2}', queue[3]))[0]
             else:
                 print("错误！创建专利有效期满对象失败")
         else:

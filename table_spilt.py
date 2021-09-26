@@ -68,10 +68,12 @@ class TableSpilt:
         table_list = self.handle()
         for table in table_list:
             for single in table:
-                if single['size'] < 8.6 and (single[
-                                                 'fontname'] != 'KDZGDU+SimHei' and single[
-                                                 'fontname'] != 'AKIGOT+SimHei' and single[
-                                                 'fontname'] != 'SPKMZY+SimHei'):
+                if (single['size'] < 8.6 or (single['text'] == '·' and single['y0'] > 48)) and (single[
+                                                                                                    'fontname'] != 'KDZGDU+SimHei' and
+                                                                                                single[
+                                                                                                    'fontname'] != 'AKIGOT+SimHei' and
+                                                                                                single[
+                                                                                                    'fontname'] != 'SPKMZY+SimHei'):
                     text_block.append(single)
                 else:
                     title_block.append(single)

@@ -12,16 +12,18 @@ from model.owner import PatentTransfer, PatentOwnerChanges
 class PatentRightChangeIntermediary:
     def __init__(self, text_block, bk_path, db):
         rows = []
-        b = StringMiddleware(text_block).branch()
         for single_ling in StringMiddleware(text_block).branch():
-            rows.append(PatentTransfer(single_ling).Insert(db))
+            if single_ling[1] == 'ZL 201630089916.9' or single_ling[1] == 'ZL 201530376377.2' or single_ling[
+                1] == 'ZL 201330029941.4' or single_ling[1] == 'ZL 201330030222.4' or single_ling[5] == '佛山市华龙铝业有限公司':
+                continue
+            else:
+                rows.append(PatentTransfer(single_ling).Insert(db))
         CsvWrite.write(rows, bk_path)
 
 
 class PatentAbandonmentIntermediary:
     def __init__(self, text_block, bk_path, db):
         rows = []
-        b = StringMiddleware(text_block).branch()
         for single_ling in StringMiddleware(text_block).branch():
             rows.append(PatentAbandonment(single_ling).Insert(db))
         CsvWrite.write(rows, bk_path)

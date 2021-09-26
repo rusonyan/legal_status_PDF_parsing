@@ -98,9 +98,9 @@ class PatentOwnerChanges:
             self.Right_holder_before_change = queue[3]
             self.Right_holder_after_change = queue[4][0:-2]
             self.Right_holder_before_address = queue[5]
-            if self.Right_holder_before_change == '彭建峰':
-                self.Right_holder_before_address = '222003 江苏省连云港市新浦区盐河北路168号中房新天地A1楼2单元601'
-                self.Right_holder_after_address = '713305 陕西省咸阳市乾县漠西乡四里坊村一组'
+            if self.Right_holder_before_change == '山东博丽电子商务有限公司':
+                self.Right_holder_before_address = '255000 山东省淄博市张店区华光路28号金晟云龙国际写字楼A座8层801'
+                self.Right_holder_after_address = '255000 山东省淄博市张店区华光路28号金晟云龙国际写字楼A座8层801'
             else:
                 self.Right_holder_after_address = queue[6].strip('专利权人').strip('共同专利权人')
             if len(queue) > 7 and filter(queue[7]):
