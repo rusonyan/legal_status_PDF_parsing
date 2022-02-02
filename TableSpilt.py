@@ -8,9 +8,23 @@ class ContentDictionary:
 
 
 class TableSpilt:
-    def __init__(self, lines, pdf):
-        self.lines = lines
+    """
+    PDF拆分为单表
+    """
+
+    def __init__(self, pdf, filename):
+        self.filename = filename
         self.pdf = pdf
+        self.lines = self.get_lines()
+
+    def get_lines(self):
+        lines = []
+        for x in self.pdf.lines:
+            if x['linewidth'] > 1.4:
+                lines.append(x)
+        if self.filename == 'WGSW2909.pdf':
+            lines.insert(8, {'y0': 50, 'page_number': 143})
+        return lines
 
     def get_this_name(self):
         filename = ''
@@ -68,12 +82,7 @@ class TableSpilt:
         table_list = self.handle()
         for table in table_list:
             for single in table:
-                if (single['size'] < 8.6 or (single['text'] == '·' and single['y0'] > 48)) and (single[
-                                                                                                    'fontname'] != 'KDZGDU+SimHei' and
-                                                                                                single[
-                                                                                                    'fontname'] != 'AKIGOT+SimHei' and
-                                                                                                single[
-                                                                                                    'fontname'] != 'SPKMZY+SimHei'):
+                if single['size'] < 8.6 or (single['text'] == '·' and single['y0'] > 48):
                     text_block.append(single)
                 else:
                     title_block.append(single)

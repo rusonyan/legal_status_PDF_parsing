@@ -1,8 +1,14 @@
 import re
 
 """
-表内容分割
+表拆成单行数据:
+    StringMiddleware.branch()  ->针对每行单数据分割
+    StringMiddleware.branches()->针对每行双数据分割
 """
+
+
+def is_ZL(text):
+    return bool(re.search(r'ZL .*', text))
 
 
 class StringMiddleware:
@@ -11,9 +17,6 @@ class StringMiddleware:
         string_queue = ''
         self.queue = queue
         self.string = string
-
-    def is_ZL(self, str):
-        return bool(re.search(r'ZL .*', str))
 
     def branch(self):
         queue = self.queue
@@ -34,10 +37,10 @@ class StringMiddleware:
         results = string
         patent_transfer_queue = []
         for i in range(len(results)):
-            if self.is_ZL(results[i]):
+            if is_ZL(results[i]):
                 state = True
                 for j in range(i + 1, len(results)):
-                    if self.is_ZL(results[j]):
+                    if is_ZL(results[j]):
                         patent_transfer_queue.append(results[i - 1:j - 1])
                         state = False
                         break
@@ -45,7 +48,7 @@ class StringMiddleware:
                     patent_transfer_queue.append(results[i - 1:])
         return patent_transfer_queue
 
-    def branchs(self):
+    def branches(self):
         queue = self.queue
         string = self.string
         string_queue = ''
@@ -64,10 +67,10 @@ class StringMiddleware:
         results = string
         patent_transfer_queue = []
         for i in range(len(results)):
-            if self.is_ZL(results[i]):
+            if is_ZL(results[i]):
                 state = True
                 for j in range(i + 1, len(results)):
-                    if self.is_ZL(results[j]):
+                    if is_ZL(results[j]):
                         patent_transfer_queue.append(results[i - 1:j])
                         state = False
                         break
